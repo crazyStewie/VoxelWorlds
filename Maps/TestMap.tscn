@@ -1,0 +1,128 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://Assets/Objects/Road.meshlib" type="MeshLibrary" id=1]
+[ext_resource path="res://Assets/Objects/Player/Player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/Objects/Barrel.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Objects/Stairs.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Models/SimpleHouse.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Objects/Building.tscn" type="PackedScene" id=6]
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 1, 16, 52 )
+
+[sub_resource type="BoxShape" id=2]
+extents = Vector3( 52, 1, 52 )
+
+[node name="TestMap" type="Spatial"]
+
+[node name="walls" type="Spatial" parent="."]
+
+[node name="StaticBody" type="StaticBody" parent="walls"]
+
+[node name="CollisionShape" type="CollisionShape" parent="walls/StaticBody"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -51, 14, 0 )
+shape = SubResource( 1 )
+
+[node name="CollisionShape5" type="CollisionShape" parent="walls/StaticBody"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 31, 0 )
+shape = SubResource( 2 )
+
+[node name="CollisionShape2" type="CollisionShape" parent="walls/StaticBody"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 51, 14, 0 )
+shape = SubResource( 1 )
+
+[node name="CollisionShape3" type="CollisionShape" parent="walls/StaticBody"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -1.90735e-06, 14, 51 )
+shape = SubResource( 1 )
+
+[node name="CollisionShape4" type="CollisionShape" parent="walls/StaticBody"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -1.90735e-06, 14, -51 )
+shape = SubResource( 1 )
+
+[node name="Barrels" type="Spatial" parent="."]
+
+[node name="Barrel" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+
+[node name="Barrel2" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.600001, 0 )
+
+[node name="Barrel3" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.600002, 0 )
+
+[node name="Barrel4" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.600003, 0 )
+
+[node name="Barrel9" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.600009, 2 )
+
+[node name="Barrel8" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.600018, 2 )
+
+[node name="Barrel7" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.600019, 2 )
+
+[node name="Barrel6" parent="Barrels" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.600017, 2 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( -0.866025, 0.25, 0.433013, 0, -0.866025, 0.5, 0.5, 0.433013, 0.75, 0, 17.4, 0 )
+light_color = Color( 1, 1, 0.87451, 1 )
+light_energy = 2.0
+light_specular = 1.0
+shadow_enabled = true
+shadow_color = Color( 0.116667, 0.1, 0.2, 1 )
+shadow_bias = 0.05
+directional_shadow_blend_splits = true
+directional_shadow_normal_bias = 0.05
+directional_shadow_max_distance = 200.0
+
+[node name="Player" parent="." instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.28129, 3.00001, 16.1122 )
+
+[node name="Stairs" parent="." instance=ExtResource( 4 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -31, 0, -8 )
+
+[node name="Houses" type="Spatial" parent="."]
+
+[node name="SimpleHouse2" parent="Houses" instance=ExtResource( 5 )]
+transform = Transform( -1, 0, -2.06632e-07, 0, 1, 0, 2.06632e-07, 0, -1, -7, 0, 7 )
+
+[node name="SimpleHouse3" parent="Houses" instance=ExtResource( 5 )]
+transform = Transform( -1, 0, -2.06632e-07, 0, 1, 0, 2.06632e-07, 0, -1, 0, 0, 7 )
+
+[node name="SimpleHouse4" parent="Houses" instance=ExtResource( 5 )]
+transform = Transform( -1, 0, -2.06632e-07, 0, 1, 0, 2.06632e-07, 0, -1, 7, 0, 7 )
+
+[node name="SimpleHouse5" parent="Houses" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 2.83122e-07, 0, 1, 0, -2.83122e-07, 0, 1, 7, 0, -7 )
+
+[node name="SimpleHouse6" parent="Houses" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 2.83122e-07, 0, 1, 0, -2.83122e-07, 0, 1, 0, 0, -7 )
+
+[node name="SimpleHouse7" parent="Houses" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 2.83122e-07, 0, 1, 0, -2.83122e-07, 0, 1, -7, 0, -7 )
+
+[node name="GridMap" type="GridMap" parent="."]
+mesh_library = ExtResource( 1 )
+cell_size = Vector3( 10, 2, 10 )
+cell_center_y = false
+data = {
+"cells": PoolIntArray( 0, 0, -1609564160, 1, 0, 537919492, 2, 0, 1048576, 3, 0, 1048576, 4, 0, 1048580, 65531, 0, 1048580, 65532, 0, 1048576, 65533, 0, 1048576, 65534, 0, 1048580, 65535, 0, -1609564160, 0, 1, 4, 1, 1, 1048577, 2, 1, 4, 3, 1, 536870916, 4, 1, 537919490, 65531, 1, 1441794, 65532, 1, 4, 65533, 1, 4, 65534, 1, 1048577, 65535, 1, 536870916, 0, 2, 1048576, 1, 2, -1609564156, 2, 2, 1048576, 3, 2, 1048576, 4, 2, 1048580, 65531, 2, 1048580, 65532, 2, 1048576, 65533, 2, -1609564160, 65534, 2, -1609564156, 65535, 2, -1609564160, 0, 3, -1609564160, 1, 3, 1048580, 2, 3, 1048576, 3, 3, 1048576, 4, 3, -1609564156, 65531, 3, 1048580, 65532, 3, 1048576, 65533, 3, 1048576, 65534, 3, 1048580, 65535, 3, 1048576, 0, 4, -1610612732, 1, 4, -1610612734, 2, 4, -1610612732, 3, 4, 536870916, 4, 4, 536870915, 65531, 4, -1609170941, 65532, 4, 4, 65533, 4, -1610612732, 65534, 4, 2, 65535, 4, 4, 0, 65531, 536870916, 1, 65531, -1609957374, 2, 65531, 4, 3, 65531, 4, 4, 65531, -1609564157, 65531, 65531, 655363, 65532, 65531, -1610612732, 65533, 65531, -1610612732, 65534, 65531, 655362, 65535, 65531, -1610612732, 0, 65532, 1048576, 1, 65532, -1609564156, 2, 65532, -1609564160, 3, 65532, 1048576, 4, 65532, -1609564156, 65531, 65532, -1609564156, 65532, 65532, -1609564160, 65533, 65532, -1609564160, 65534, 65532, 1048580, 65535, 65532, -1609564160, 0, 65533, 1048576, 1, 65533, -1609564156, 2, 65533, -1609564160, 3, 65533, 1048576, 4, 65533, -1609564156, 65531, 65533, -1609564156, 65532, 65533, 1048576, 65533, 65533, -1609564160, 65534, 65533, 1048580, 65535, 65533, 1048576, 0, 65534, 4, 1, 65534, 1048577, 2, 65534, 536870916, 3, 65534, 4, 4, 65534, 537919490, 65531, 65534, -1609170942, 65532, 65534, 4, 65533, 65534, 4, 65534, 65534, 1048577, 65535, 65534, 4, 0, 65535, 1048576, 1, 65535, -1609564156, 2, 65535, 1048576, 3, 65535, 1048576, 4, 65535, -1609564156, 65531, 65535, 1048580, 65532, 65535, 1048576, 65533, 65535, 1048576, 65534, 65535, 1048580, 65535, 65535, 1048576 )
+}
+__meta__ = {
+"_editor_clip_": 0,
+"_editor_floor_": Vector3( 0, 0, 0 )
+}
+
+[node name="Building" parent="." instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 30 )
+
+[node name="Building2" parent="." instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 30, 0, -30 )
+
+[node name="Building3" parent="." instance=ExtResource( 6 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -30, 0, -30 )
+
+[node name="Building4" parent="." instance=ExtResource( 6 )]
+transform = Transform( 1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -30, 0, 30 )

@@ -1,0 +1,115 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://rust-native.gdnlib" type="GDNativeLibrary" id=1]
+[ext_resource path="res://Assets/Base/Camera.gd" type="Script" id=2]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.823529, 0.117647, 0.117647, 1 )
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 1, 0.533333, 0.2, 1 )
+border_color = Color( 1, 0.833333, 0, 1 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_size = 4
+shadow_offset = Vector2( 0, 4 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.8, 0.333333, 0, 1 )
+border_color = Color( 1, 0.833333, 0, 1 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_size = 4
+shadow_offset = Vector2( 0, 4 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 1, 0.416667, 0, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 1, 0.833333, 0, 1 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_size = 4
+shadow_offset = Vector2( 0, 4 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.5, 0.354167, 0.25, 1 )
+border_color = Color( 1, 0.833333, 0, 1 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_size = 4
+shadow_offset = Vector2( 0, 4 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 1, 0.416667, 0, 1 )
+border_color = Color( 1, 0.833333, 0, 1 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_size = 4
+shadow_offset = Vector2( 0, 4 )
+
+[sub_resource type="NativeScript" id=7]
+resource_name = "GameWorld"
+class_name = "GameWorld"
+library = ExtResource( 1 )
+
+[node name="Game" type="Node"]
+
+[node name="GUI" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MainMenu" type="Control" parent="GUI"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MainButtons" type="PanelContainer" parent="GUI/MainMenu"]
+anchor_bottom = 1.0
+margin_right = 200.0
+custom_styles/panel = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="GUI/MainMenu/MainButtons"]
+margin_left = 20.0
+margin_top = 270.0
+margin_right = 180.0
+margin_bottom = 330.0
+rect_min_size = Vector2( 160, 60 )
+focus_mode = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+custom_styles/hover = SubResource( 2 )
+custom_styles/pressed = SubResource( 3 )
+custom_styles/focus = SubResource( 4 )
+custom_styles/disabled = SubResource( 5 )
+custom_styles/normal = SubResource( 6 )
+text = "Start Game"
+
+[node name="World" type="Spatial" parent="."]
+script = SubResource( 7 )
+
+[node name="Camera" type="Camera" parent="World"]
+transform = Transform( 1, 0, 1.7683e-07, -8.84149e-08, 0.866025, 0.5, -1.53139e-07, -0.5, 0.866025, 0, 2, 3 )
+script = ExtResource( 2 )

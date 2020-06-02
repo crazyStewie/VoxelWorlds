@@ -1,0 +1,133 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://Assets/Objects/Player/ActionController.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Objects/Player/HUD.gd" type="Script" id=2]
+[ext_resource path="res://Assets/Objects/Player/Controller.gd" type="Script" id=3]
+
+[sub_resource type="PhysicsMaterial" id=1]
+friction = 0.0
+
+[sub_resource type="CapsuleShape" id=2]
+radius = 0.3
+height = 0.8
+
+[sub_resource type="CapsuleMesh" id=3]
+radius = 0.3
+mid_height = 0.8
+radial_segments = 24
+rings = 4
+
+[sub_resource type="SphereMesh" id=4]
+radius = 0.005
+height = 0.01
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SpatialMaterial" id=5]
+flags_unshaded = true
+flags_no_depth_test = true
+flags_fixed_size = true
+flags_do_not_receive_shadows = true
+flags_disable_ambient_light = true
+params_grow = true
+params_grow_amount = 0.003
+albedo_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="SpatialMaterial" id=6]
+next_pass = SubResource( 5 )
+flags_unshaded = true
+flags_no_depth_test = true
+flags_fixed_size = true
+flags_do_not_receive_shadows = true
+flags_disable_ambient_light = true
+
+[sub_resource type="CubeMesh" id=7]
+size = Vector3( 0.1, 0.1, 0.1 )
+
+[node name="PlayerSpawn" type="Spatial"]
+
+[node name="Player" type="RigidBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
+mode = 2
+physics_material_override = SubResource( 1 )
+
+[node name="Body" type="CollisionShape" parent="Player"]
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0 )
+shape = SubResource( 2 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Player/Body"]
+visible = false
+mesh = SubResource( 3 )
+material/0 = null
+
+[node name="Foot" type="RayCast" parent="Player"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0 )
+enabled = true
+
+[node name="Aim" type="RayCast" parent="Player"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
+enabled = true
+cast_to = Vector3( 0, 0, -3 )
+
+[node name="Camera" type="Camera" parent="Player/Aim"]
+
+[node name="MeshInstance" type="MeshInstance" parent="Player/Aim"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+material/0 = SubResource( 6 )
+
+[node name="Pointer" type="Spatial" parent="Player"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -1 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Player/Pointer"]
+visible = false
+mesh = SubResource( 7 )
+material/0 = null
+
+[node name="HUD" type="Control" parent="Player"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Debug" type="PanelContainer" parent="Player/HUD"]
+visible = false
+margin_right = 14.0
+margin_bottom = 14.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Player/HUD/Debug"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 7.0
+margin_bottom = 21.0
+
+[node name="FPS" type="PanelContainer" parent="Player/HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -53.0
+margin_bottom = 28.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Player/HUD/FPS"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 46.0
+margin_bottom = 21.0
+text = "60 fps"
+align = 1
+valign = 1
+
+[node name="MovementController" type="Node" parent="Player"]
+script = ExtResource( 3 )
+
+[node name="ActionController" type="Node" parent="Player"]
+script = ExtResource( 1 )
