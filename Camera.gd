@@ -1,6 +1,4 @@
-extends Camera
-
-
+extends KinematicBody
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
@@ -20,12 +18,14 @@ func _unhandled_input(event):
 		target_yaw -= event.relative.x*sensitivity;
 		target_pitch = clamp(target_pitch, -89, 89);
 		target_yaw = wrapf(target_yaw, -180, 180);
-		self.rotation_degrees.x = target_pitch;
-		self.rotation_degrees.y = target_yaw;
+		$RayCast.rotation_degrees.x = target_pitch;
+		$RayCast.rotation_degrees.y = target_yaw;
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta : float):
-	self.translation += -delta*(Input.get_action_strength("player_forward") - Input.get_action_strength("player_backward"))*self.transform.basis.z*speed;
-	self.translation += -delta*(Input.get_action_strength("player_left") - Input.get_action_strength("player_right"))*self.transform.basis.x*speed;
+func _physics_process(delta : float):
+	var movement : Vector3 = Vector3.ZERO;
+	movement += -(Input.get_action_strength("player_forward") - Input.get_action_strength("player_backward"))*$RayCast.transform.basis.z*speed;
+	movement += -(Input.get_action_strength("player_left") - Input.get_action_strength("player_right"))*$RayCast.transform.basis.x*speed;
+	self.move_and_slide(movement);
 	pass

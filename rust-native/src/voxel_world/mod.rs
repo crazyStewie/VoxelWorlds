@@ -1,6 +1,7 @@
 mod chunk;
 mod world_generator;
 mod mesh_generator;
+mod collision_generator;
 use world_generator::WorldGeneratorTrait;
 use gdnative::*;
 
@@ -22,12 +23,14 @@ pub struct VoxelWorld {
     generator : Arc<world_generator::PerlinWorldGenerator>,
     mesher : Arc<mesh_generator::MeshGenerator>,
     visual_server : VisualServer,
+    physics_server : PhysicsServer,
     scenario : Rid,
+    space : Rid,
     instant : Instant,
     camera : Option<Spatial>,
     material : Resource,
-    tx : Sender<((i64, i64, i64),Rid, VariantArray)>,
-    rx : Receiver<((i64, i64, i64),Rid, VariantArray)>,
+    tx : Sender<((i64, i64, i64),Arc<Mutex<chunk::Chunk>>)>,
+    rx : Receiver<((i64, i64, i64),Arc<Mutex<chunk::Chunk>>)>,
     is_processing : bool,
     processing_list : HashMap<(i64, i64, i64), JoinHandle<()>>,
     max_threads : usize,
@@ -38,7 +41,7 @@ pub struct VoxelWorld {
 #[methods]
 impl VoxelWorld {
     pub fn _init(_owner: Spatial) -> Self {
-        let (tx, rx) = channel::<((i64, i64, i64), Rid, VariantArray)>();
+        let (tx, rx) = channel::<((i64, i64, i64), Arc<Mutex<chunk::Chunk>>)>();
         let distance = 12;
         let mut positions = Vec::new();
         for i in -distance..distance + 1 {
@@ -61,7 +64,9 @@ impl VoxelWorld {
             generator : Arc::new(world_generator::PerlinWorldGenerator::new()),
             mesher : Arc::new(mesh_generator::MeshGenerator::new()),
             visual_server : VisualServer::godot_singleton(),
+            physics_server : PhysicsServer::godot_singleton(),
             scenario : Rid::new(),
+            space : Rid::new(),
             instant : Instant::now(),
             camera : None,
             material : Resource::new(),
@@ -69,15 +74,16 @@ impl VoxelWorld {
             rx,
             is_processing : false,
             processing_list : HashMap::new(),
-            max_threads : 16,
+            max_threads : 8,
             positions,
-            max_time : 12,
+            max_time : 6,
         }
     }
     
     #[export]
     unsafe fn _ready(&mut self, _owner : Spatial) {
         self.scenario = _owner.get_world().unwrap().get_scenario();
+        self.space = _owner.get_world().unwrap().get_space();
         self.material = ResourceLoader::godot_singleton().load(GodotString::from_str("res://Assets/Materials/ground.material"), GodotString::from_str(""), false).unwrap();
         godot_print!("Voxel world ready");
         self.update_chunks(_owner);
@@ -105,12 +111,31 @@ impl VoxelWorld {
         if self.processing_list.len() > 0 {
             loop {
                 match self.rx.try_recv() {
-                    Ok((position  , mesh,mut arrays)) => {
-                        self.visual_server.mesh_clear(mesh);
-                        if Vector3Array::from_variant(arrays.get_ref(ArrayMesh::ARRAY_VERTEX as i32)).unwrap().len() > 0 {
-                            self.visual_server.mesh_add_surface_from_arrays(mesh, Mesh::PRIMITIVE_TRIANGLES, arrays.new_ref(), VariantArray::new(), 97280);
+                    Ok((position  , chunk_arc)) => {
+                        let mut chunk = chunk_arc.lock().unwrap();
+                        self.visual_server.mesh_clear(chunk.mesh);
+                        self.physics_server.body_clear_shapes(chunk.body);
+                        for shape in chunk.shapes.iter() {
+                            self.physics_server.free_rid(*shape);
                         }
-                        arrays.clear();
+                        chunk.shapes.clear();
+                        if Vector3Array::from_variant(chunk.arrays.get_ref(ArrayMesh::ARRAY_VERTEX as i32)).unwrap().len() > 0 {
+                            self.visual_server.mesh_add_surface_from_arrays(chunk.mesh, Mesh::PRIMITIVE_TRIANGLES, chunk.arrays.new_ref(), VariantArray::new(), 97280);
+                            let shape = self.physics_server.shape_create(PhysicsServer::SHAPE_CONCAVE_POLYGON);
+                            self.physics_server.shape_set_data(shape, chunk.arrays.get_val(ArrayMesh::ARRAY_VERTEX as i32));
+                            self.physics_server.body_add_shape(chunk.body, shape, Transform {basis : Basis::identity(), origin : Vector3::zero()}, false);
+                            chunk.shapes.push(shape);
+                        }
+                        chunk.arrays.clear();
+                        //for i in 0..chunk.shape_parameters.len() {
+                        //    let shape = self.physics_server.shape_create(PhysicsServer::SHAPE_BOX);
+                        //    self.physics_server.shape_set_data(shape, chunk.shape_parameters[i].1.to_variant());
+                        //    self.physics_server.body_add_shape(chunk.body, shape, chunk.shape_parameters[i].0, false); 
+                        //    chunk.shapes.push(shape);
+                        //}
+                        //godot_print!("added {} shapes", chunk.shapes.len());
+                        
+                        
                         self.processing_list.remove(&position).unwrap().join().expect("Thread already joined");
                     }
                     Err(_) => {
@@ -118,6 +143,7 @@ impl VoxelWorld {
                     }
                 }
                 if self.instant.elapsed().as_millis() > self.max_time {
+                    //godot_print!("took {:?} to finish", self.instant.elapsed());
                     return;
                 }
             }
@@ -141,6 +167,7 @@ impl VoxelWorld {
                 return;
             }
             if self.instant.elapsed().as_millis() > self.max_time {
+                //godot_print!("took {:?} to finish", self.instant.elapsed());
                 return;
             }
             let position = (pos.0 + self.root.0, pos.1 + self.root.1, pos.2 +self.root.2);
@@ -159,12 +186,14 @@ impl VoxelWorld {
                                 let chunk = chunk_guard.deref_mut();
                                 generator.generate_chunk(chunk);
                                 mesher.generate_chunk(chunk);
-                                tx.send((chunk.position, chunk.mesh.clone(), chunk.arrays.new_ref()));
+                                collision_generator::CollisionGenerator::generate_collisions(chunk);
+                                tx.send((chunk.position, chunk_arc.clone()));
                             });
                             self.processing_list.insert(position, handle);
                         }
                     }
                     None => {
+                        godot_print!("Creating a brand new chunk!");
                         let instance = self.visual_server.instance_create();
                         self.visual_server.instance_set_scenario(instance, self.scenario);
                         let mesh = self.visual_server.mesh_create();
@@ -176,17 +205,20 @@ impl VoxelWorld {
                                 (position.2*chunk::chunk_size as i64) as f32*chunk::block_size)};
                         self.visual_server.instance_set_transform(instance, transform);
                         self.visual_server.instance_geometry_set_material_override(instance, self.material.get_rid());
+                        let body = self.physics_server.body_create(PhysicsServer::BODY_MODE_STATIC, true);
+                        self.physics_server.body_set_space(body, self.space);
+                        self.physics_server.body_set_state(body, PhysicsServer::BODY_STATE_TRANSFORM, transform.to_variant());
                         let mut chunk = chunk::Chunk{
                             position,
                             cached : false,
                             data : None,
                             mesh,
                             instance,
-                            arrays : VariantArray::new()
+                            arrays : VariantArray::new(),
+                            body,
+                            shapes : Vec::new(),
+                            shape_parameters : Vec::new(),
                         };
-                        
-                        self.generator.generate_chunk(&mut chunk);
-                        self.mesher.generate_chunk(&mut chunk);
                         let chunk_arc = Arc::new(Mutex::new(chunk));
                         self.chunks.insert(position, chunk_arc.clone());
 
@@ -200,7 +232,8 @@ impl VoxelWorld {
                             let chunk = chunk_guard.deref_mut();
                             generator.generate_chunk(chunk);
                             mesher.generate_chunk(chunk);
-                            tx.send((chunk.position, chunk.mesh.clone(), chunk.arrays.new_ref()));
+                            collision_generator::CollisionGenerator::generate_collisions(chunk);
+                            tx.send((chunk.position, chunk_arc.clone()));
                         });
                         self.processing_list.insert(position, handle);
                     }
@@ -213,7 +246,7 @@ impl VoxelWorld {
         //}
     }
     fn check_ranges(distance : i64, root : (i64, i64, i64), position : (i64, i64, i64)) -> bool {
-        return (position.0-root.0).abs() <= distance && (position.1-root.1).abs() <= distance && (position.2-root.2).abs() <= distance;
+        return (position.0-root.0).pow(2) + (position.1-root.1).pow(2) + (position.2-root.2).pow(2) <= distance.pow(2);
     }
 }
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://rust-native.gdnlib" type="GDNativeLibrary" id=1]
-[ext_resource path="res://Camera.gd" type="Script" id=2]
+[ext_resource path="res://Assets/Objects/Player/Player.tscn" type="PackedScene" id=2]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Spatial
@@ -15,6 +15,7 @@ script/source = "extends Spatial
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	print(\"Initializing\")
+	$VoxelWorld.set_origin($PlayerSpawn/Player);
 	pass # Replace with function body.
 
 
@@ -34,16 +35,17 @@ script = SubResource( 1 )
 [node name="VoxelWorld" type="Spatial" parent="."]
 script = SubResource( 2 )
 
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 4, 0 )
-current = true
-far = 256.0
-script = ExtResource( 2 )
-
 [node name="DirectionalLight2" type="DirectionalLight" parent="."]
 transform = Transform( 0.707107, -0.5, 0.5, 9.20204e-09, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 20, 0 )
 shadow_enabled = true
 shadow_bias = 0.05
 directional_shadow_blend_splits = true
 directional_shadow_normal_bias = 0.1
-directional_shadow_max_distance = 128.0
+directional_shadow_max_distance = 196.0
+
+[node name="CSGBox" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0 )
+use_collision = true
+
+[node name="PlayerSpawn" parent="." instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 17, 0 )

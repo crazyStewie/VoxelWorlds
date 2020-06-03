@@ -51,12 +51,23 @@ pub struct Chunk {
     pub cached : bool,
     pub instance : Rid,
     pub arrays : VariantArray,
+    pub body : Rid,
+    pub shapes : Vec<Rid>,
+    pub shape_parameters : Vec<(Transform, Vector3)>
 }
 
 impl Drop for Chunk {
     fn drop(&mut self) {
         let mut visual_server = VisualServer::godot_singleton();
         visual_server.mesh_clear(self.mesh);
+        visual_server.free_rid(self.mesh);
+        visual_server.free_rid(self.instance);
+        let mut physics_server = PhysicsServer::godot_singleton();
+        physics_server.body_clear_shapes(self.body);
+        physics_server.free_rid(self.body);
+        for shape in self.shapes.iter() {
+            physics_server.free_rid(*shape);
+        }
         //godot_print!("Dropped chunk at {:?}, in thread {:?}", self.position, thread::current());
     }
 }

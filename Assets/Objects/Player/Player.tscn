@@ -56,7 +56,6 @@ transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0
 shape = SubResource( 2 )
 
 [node name="MeshInstance" type="MeshInstance" parent="Player/Body"]
-visible = false
 mesh = SubResource( 3 )
 material/0 = null
 
@@ -70,6 +69,7 @@ enabled = true
 cast_to = Vector3( 0, 0, -3 )
 
 [node name="Camera" type="Camera" parent="Player/Aim"]
+far = 200.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Player/Aim"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1 )
@@ -95,7 +95,6 @@ __meta__ = {
 }
 
 [node name="Debug" type="PanelContainer" parent="Player/HUD"]
-visible = false
 margin_right = 14.0
 margin_bottom = 14.0
 __meta__ = {

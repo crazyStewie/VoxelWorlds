@@ -73,8 +73,8 @@ func handle_mouse_capture(event: InputEvent):
 func handle_camera_input(event: InputEvent):
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		var mouse_movement : Vector2 = event.relative*view_sensibility;
-		print(event.relative);
-		print(mouse_movement);
+		#print(event.relative);
+		#print(mouse_movement);
 		target_yaw -= mouse_movement.x;
 		target_pitch -= mouse_movement.y;
 		target_pitch = clamp(target_pitch, -pitch_limit, pitch_limit);
